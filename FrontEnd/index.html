@@ -1,0 +1,131 @@
+<!doctype html>
+<html ng-app="gitapi">
+
+<head>
+	<meta charset="utf-8"/>
+	<title>GitHub Interface</title>
+	<script src="lib/js/angular.min.js"></script>
+	<script src="lib/js/jquery.min.js"></script>
+	<script src="lib/js/bootstrap.min.js"></script>
+	<script src="gitapi.js"></script>
+	<link rel="stylesheet" href="lib/css/bootstrap.min.css">
+	<link rel="stylesheet" href="lib/css/gitapi.css">
+	<link href="lib/css/fontawesome.min.css" rel="stylesheet">
+</head>
+<body>
+	<div ng-controller="GitApiController as gitapi">
+		<!--Modal-->
+		<div class="modal-bg">
+			<div id="modal" class="modal fade"  focus-group focus-group-head="loop" focus-group-tail="loop" focus-stacktabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title" id="myModalLabel">Issue Details</h4>
+							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						</div>
+						<div class="modal-body">
+							<form>
+								<div ng-repeat="(key, value) in issueDetails track by $index">
+									<div class="form-group row">
+										<label for="owner" class="col-sm-4 col-form-label">{{key}}</label>
+										<div class="col-sm-8">
+											<textarea class="form-control" disabled>{{value}}</textarea>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<!--Data Controls-->
+		<div class="container">
+			<form class="mt-3 border">
+				<div class="alert alert-info" role="alert">
+					<div><strong>Git Repository Issues</strong></div>
+					<div>Previous 7 days shown by default</div>
+				</div>
+				<div class="form-group row mt-3 ml-3">
+					<label for="owner" class="col-sm-2 col-form-label">Git Owner:</label>
+					<div class="col-sm-5">
+						<input type="text" name="owner" id="owner" value="angular" placeholder="Github owner..." class="form-control">
+					</div>
+				</div>
+				<div class="form-group row ml-3">
+					<label for="repo" class="col-sm-2 col-form-label">Git Repo:</label>
+					<div class="col-sm-5">
+						<input type="text" name="repo" id="repo" value="angular" placeholder="Github repo..." class="form-control">
+					</div>
+				</div>
+				<div class="form-group row ml-3">
+					<label for="since" class="col-sm-2 col-form-label">Update Since:</label>
+					<div class="col-sm-5">
+						<input type="date" name="since" id="since" class="form-control">
+					</div>
+				</div>
+				<div class="form-group row ml-3">
+					<div class="col-sm-2">
+					</div>
+					<div class="col-sm-5">
+						<button type="button" ng-click="getIssues()" class="btn btn-outline-primary btn-sm ">Update Results</button>
+						<div id="errorFeedback" class="text-danger mt-3"></div>
+					</div>
+				</div>
+			</form>
+		</div>
+		
+		<!--Search Controls and Results-->
+		<div class="container mt-3">
+			<div class="navbar navbar-light bg-light justify-content-between border">
+				<a class="navbar-brand">Known Issues for: <strong>{{owner}}/{{repo}}</strong></a>
+				<form class="form-inline">
+					<input ng-model="searchKeyword" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+				</form>
+			</div>
+			<table class="table border">
+				<thead>
+					<tr>
+						<th>Details</th>
+						<th>Title</th>
+						<th>Body</th>
+						<th>Login</th>
+						<th>Assignee</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="issue in RepoIssues | orderBy: sort | filter: searchKeyword track by $index">
+						<td>
+							<button ng-click="GetDetails($index)" type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" focus-element="autofocus" data-target="#modal">
+								<i class="fas fa-book-open "></i>
+							</button>
+						</td>
+						<td>
+							{{issue.title}}
+						</td>
+						<td>
+							<span class="d-inline-block text-truncate" style="max-width: 400px;">{{issue.body}}</span>
+						</td>
+						<td>
+							{{issue.user.login}}
+						</td>
+						<td>
+							{{issue.assignee.login}}
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<!--Debug Controls-->
+		<div class="container mt-3">
+			<button class="btn btn-outline-primary mb-3" type="button" data-toggle="collapse" data-target="#debugData" aria-expanded="false" aria-controls="debugData">
+				Raw (Debug) Data
+			</button>
+			<div class="collapse border" id="debugData">
+				<pre>{{RepoIssuesPrettyDebug}}</pre>
+			</div>
+		</div>
+	</div>
+</body>
